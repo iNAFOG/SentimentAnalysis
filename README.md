@@ -1,14 +1,21 @@
-# Sentiment Analysis Using LSTM
+Here’s the updated README excluding the results section:
 
-This repository contains an implementation of a **Long Short-Term Memory (LSTM)** model for sentiment analysis. The goal of this project is to classify text data as positive, negative, or neutral based on its sentiment.
+---
+
+# Sentiment Analysis Using LSTM with Regularization and Dropout
+
+This repository contains two LSTM-based models for binary sentiment analysis, each designed with different configurations to explore the impact of architectural choices, regularization techniques, and hyperparameter tuning.
+
+---
 
 ## Features
 
-- Preprocessing of text data, including tokenization and padding.
-- Implementation of an LSTM model for sequential data.
-- Ability to handle imbalanced datasets using techniques like oversampling or weighted loss.
-- Training and evaluation on labeled sentiment datasets.
-- Output metrics including accuracy, precision, recall, and F1 score.
+- **Two Distinct Models**:
+  - **Model 1**: Uses higher-dimensional embeddings and more LSTM units for richer feature extraction.
+  - **Model 2**: Reduces embedding dimensions and LSTM units for a more lightweight architecture.
+- **Regularization**: Dropout and L2 regularization prevent overfitting.
+- **Early Stopping**: Stops training when validation loss does not improve.
+- **Evaluation**: Metrics include accuracy and loss.
 
 ---
 
@@ -18,15 +25,12 @@ This repository contains an implementation of a **Long Short-Term Memory (LSTM)*
 
 Ensure you have Python 3.7 or later installed. The following libraries are required:
 
+- `tensorflow`
 - `numpy`
 - `pandas`
-- `matplotlib`
-- `seaborn`
-- `scikit-learn`
-- `tensorflow`
-- `nltk`
+- `sklearn`
 
-You can install the dependencies using:
+Install dependencies using:
 
 ```bash
 pip install -r requirements.txt
@@ -36,91 +40,97 @@ pip install -r requirements.txt
 
 ## Data Preprocessing
 
-1. **Dataset**  
-   Prepare a labeled dataset containing text and sentiment labels (e.g., positive, negative, neutral).
+1. **Dataset Preparation**  
+   The dataset should consist of text samples with binary sentiment labels (0 or 1).
 
 2. **Tokenization and Padding**  
-   Text data is tokenized into sequences of integers using the `Tokenizer` class from TensorFlow/Keras. Padding is applied to ensure sequences have uniform length.
+   Convert text into sequences using a tokenizer and apply padding to standardize input length.
 
-3. **Train-Test Split**  
-   The dataset is split into training and testing subsets for evaluation.
+3. **Train-Validation-Test Split**  
+   Split the data into training, validation, and test sets for robust evaluation.
 
 ---
 
-## Model Architecture
+## Model Architectures
 
-The LSTM model is designed to process sequential data. Its architecture includes:
+### **Model 1**: Richer Feature Extraction
 
-- **Embedding Layer**: Converts integer sequences into dense vector representations.
-- **LSTM Layer**: Captures long-term dependencies in the text.
-- **Dense Layer**: Fully connected layer for classification.
-- **Activation**: Softmax for multi-class sentiment classification.
+1. **Embedding Layer**  
+   - Embedding dimension: 128
 
-### Example Architecture
-```plaintext
-Embedding -> LSTM -> Dense -> Softmax
+2. **LSTM Layers**  
+   - First LSTM: 128 units (`return_sequences=True`)
+   - Second LSTM: 64 units
+
+3. **Dropout**  
+   - Dropout rate: 50%
+
+4. **Dense Layer**  
+   - Fully connected with 64 units, ReLU activation, and L2 regularization (0.01).
+
+5. **Output Layer**  
+   - Single neuron with sigmoid activation for binary classification.
+
+**Compilation**:  
+- Optimizer: Adam (learning rate: 0.0001)  
+- Loss: Binary Cross-Entropy  
+- Metrics: Accuracy  
+
+**Training**:
+```python
+model.fit(train_padded, y_train, epochs=10, batch_size=32, validation_data=(validation_padded, y_validation), callbacks=[early_stopping])
 ```
 
 ---
 
-## Training
+### **Model 2**: Lightweight and Regularized
 
-The model is trained using:
+1. **Embedding Layer**  
+   - Embedding dimension: 100
 
-- **Loss Function**: Categorical Cross-Entropy
-- **Optimizer**: Adam
-- **Evaluation Metrics**: Accuracy, Precision, Recall, and F1 Score
+2. **LSTM Layers**  
+   - First LSTM: 64 units (`return_sequences=True`)
+   - Second LSTM: 32 units
 
-To train the model, execute:
+3. **Dropout**  
+   - Dropout rate: 40%
 
-```bash
-python train.py
+4. **Dense Layer**  
+   - Fully connected with 64 units, ReLU activation, and L2 regularization (0.005).
+
+5. **Output Layer**  
+   - Single neuron with sigmoid activation for binary classification.
+
+**Compilation**:  
+- Optimizer: Adam (learning rate: 0.00005)  
+- Loss: Binary Cross-Entropy  
+- Metrics: Accuracy  
+
+**Training**:
+```python
+model.fit(train_padded, y_train, epochs=10, batch_size=32, validation_data=(validation_padded, y_validation), callbacks=[early_stopping])
 ```
-
----
-
-## Evaluation
-
-The trained model is evaluated on the test dataset, with results visualized using:
-
-- Confusion Matrix
-- Precision-Recall Curve
-
----
-
-## Results
-
-The model achieves the following metrics on the test dataset:
-
-- **Accuracy**: `X%`
-- **Precision**: `Y%`
-- **Recall**: `Z%`
-- **F1 Score**: `A%`
 
 ---
 
 ## Usage
 
-### Predicting Sentiment
+### Predict Sentiment
 
-To use the trained model for sentiment prediction on new text data:
+To use the trained models for predictions:
 
 ```python
-from predict import predict_sentiment
-
-text = "This product is amazing!"
-result = predict_sentiment(text)
-print(result)
+prediction = model.predict(new_text_padded)
+print(f"Predicted Sentiment: {'Positive' if prediction > 0.5 else 'Negative'}")
 ```
 
-### Output
-The sentiment (e.g., Positive, Negative, Neutral) is displayed.
+The output will be either **Positive** or **Negative**, depending on the prediction.
 
 ---
 
 ## Contributing
 
-Feel free to contribute to this project! Open issues, suggest improvements, or submit pull requests.
+Contributions are welcome! Open issues, suggest features, or submit pull requests.
 
 ---
 
@@ -132,4 +142,4 @@ This project is licensed under the MIT License.
 
 ## Acknowledgments
 
-Special thanks to open-source libraries and datasets that made this project possible!
+Special thanks to TensorFlow/Keras for making deep learning accessible and to the open-source community for support and inspiration!
