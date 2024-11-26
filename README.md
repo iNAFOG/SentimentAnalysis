@@ -1,4 +1,4 @@
-Here’s the updated README excluding the results section:
+Here’s the updated README to include the prediction functionality:
 
 ---
 
@@ -15,7 +15,8 @@ This repository contains two LSTM-based models for binary sentiment analysis, ea
   - **Model 2**: Reduces embedding dimensions and LSTM units for a more lightweight architecture.
 - **Regularization**: Dropout and L2 regularization prevent overfitting.
 - **Early Stopping**: Stops training when validation loss does not improve.
-- **Evaluation**: Metrics include accuracy and loss.
+- **Text Preprocessing**: Cleans and lemmatizes input text for model compatibility.
+- **Prediction Functionality**: Allows real-time sentiment prediction for custom input text.
 
 ---
 
@@ -29,6 +30,8 @@ Ensure you have Python 3.7 or later installed. The following libraries are requi
 - `numpy`
 - `pandas`
 - `sklearn`
+- `nltk`
+- `bs4`
 
 Install dependencies using:
 
@@ -38,93 +41,81 @@ pip install -r requirements.txt
 
 ---
 
-## Data Preprocessing
+## Predicting Sentiment for Custom Input
 
-1. **Dataset Preparation**  
-   The dataset should consist of text samples with binary sentiment labels (0 or 1).
+The repository includes a function to predict the sentiment of custom text input using the trained LSTM model.
 
-2. **Tokenization and Padding**  
-   Convert text into sequences using a tokenizer and apply padding to standardize input length.
+### Function Overview
 
-3. **Train-Validation-Test Split**  
-   Split the data into training, validation, and test sets for robust evaluation.
+The `predict_sentiment` function performs the following steps:
 
----
+1. **Text Preprocessing**:
+   - Converts text to lowercase.
+   - Removes non-alphanumeric characters.
+   - Removes stopwords using NLTK.
+   - Cleans HTML content using `BeautifulSoup`.
+   - Lemmatizes the text for better tokenization.
 
-## Model Architectures
+2. **Tokenization and Padding**:
+   - Converts preprocessed text into sequences using the tokenizer.
+   - Pads sequences to the required input length of the model.
 
-### **Model 1**: Richer Feature Extraction
+3. **Prediction**:
+   - Uses the trained LSTM model to predict sentiment.
+   - Outputs the sentiment score and classification as **Positive**, **Neutral**, or **Negative** based on the prediction value.
 
-1. **Embedding Layer**  
-   - Embedding dimension: 128
+### Example Usage
 
-2. **LSTM Layers**  
-   - First LSTM: 128 units (`return_sequences=True`)
-   - Second LSTM: 64 units
-
-3. **Dropout**  
-   - Dropout rate: 50%
-
-4. **Dense Layer**  
-   - Fully connected with 64 units, ReLU activation, and L2 regularization (0.01).
-
-5. **Output Layer**  
-   - Single neuron with sigmoid activation for binary classification.
-
-**Compilation**:  
-- Optimizer: Adam (learning rate: 0.0001)  
-- Loss: Binary Cross-Entropy  
-- Metrics: Accuracy  
-
-**Training**:
 ```python
-model.fit(train_padded, y_train, epochs=10, batch_size=32, validation_data=(validation_padded, y_validation), callbacks=[early_stopping])
+def predict_sentiment(text):
+    """Predicts the sentiment of a given text using the trained model."""
+    # Preprocess the text
+    text = text.lower()
+    text = re.sub('[^a-z A-z 0-9-]+', '', text)
+    text = " ".join([y for y in text.split() if y not in stopwords.words('english')])
+    text = re.sub(r'(http|https|ftp|ssh)://[\w_-]+(?:\.[\w_-]+)+[\w.,@?^=%&:/~+#-]*', '', text)
+
+    text = BeautifulSoup(text, 'html.parser').get_text()
+    text = " ".join(text.split())
+    text = lemmatize_words(text)
+
+    # Tokenize and pad the text
+    sequence = tokenizer.texts_to_sequences([text])
+    padded_sequence = pad_sequences(sequence, maxlen=max_length, padding='pre')
+
+    # Make a prediction
+    prediction = model.predict(padded_sequence)
+
+    # Return the sentiment score
+    return prediction[0][0]
+
+# Example input
+custom_input = input("Enter your text: ")
+
+# Predict sentiment
+sentiment = predict_sentiment(custom_input)
+
+# Classify sentiment
+if sentiment >= 0.772:
+    print(sentiment)
+    print("Positive sentiment")
+elif sentiment < 0.772 and sentiment > 0.5:
+    print(sentiment)
+    print("Neutral sentiment")
+else:
+    print(sentiment)
+    print("Negative sentiment")
 ```
 
 ---
 
-### **Model 2**: Lightweight and Regularized
+### **Output Classification**
 
-1. **Embedding Layer**  
-   - Embedding dimension: 100
+- **Positive Sentiment**: Sentiment score ≥ 0.772
+- **Neutral Sentiment**: 0.5 < Sentiment score < 0.772
+- **Negative Sentiment**: Sentiment score ≤ 0.5
 
-2. **LSTM Layers**  
-   - First LSTM: 64 units (`return_sequences=True`)
-   - Second LSTM: 32 units
-
-3. **Dropout**  
-   - Dropout rate: 40%
-
-4. **Dense Layer**  
-   - Fully connected with 64 units, ReLU activation, and L2 regularization (0.005).
-
-5. **Output Layer**  
-   - Single neuron with sigmoid activation for binary classification.
-
-**Compilation**:  
-- Optimizer: Adam (learning rate: 0.00005)  
-- Loss: Binary Cross-Entropy  
-- Metrics: Accuracy  
-
-**Training**:
-```python
-model.fit(train_padded, y_train, epochs=10, batch_size=32, validation_data=(validation_padded, y_validation), callbacks=[early_stopping])
-```
-
----
-
-## Usage
-
-### Predict Sentiment
-
-To use the trained models for predictions:
-
-```python
-prediction = model.predict(new_text_padded)
-print(f"Predicted Sentiment: {'Positive' if prediction > 0.5 else 'Negative'}")
-```
-
-The output will be either **Positive** or **Negative**, depending on the prediction.
+This functionality allows you to interact with the model in real-time and test it with any input text.
 
 ---
 
