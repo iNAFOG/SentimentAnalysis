@@ -1,5 +1,0 @@
-streamlit
-tensorflow
-nltk==3.9.1
-beautifulsoup4==4.12.3
-numpy==1.26.4
