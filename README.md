@@ -1,4 +1,4 @@
-Here’s the updated README to include the prediction functionality:
+
 
 ---
 
