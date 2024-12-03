@@ -61,37 +61,18 @@ def predict_sentiment_ensemble(text):
 
 # Custom CSS for top-notch styling
 st.markdown("""
-    
-    
     <style>
-    /* General Background and Font Styling */
-
-
     body {
         background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
         font-family: Consolas,monaco,monospace;
         color: #2c3e50;
     }
-
-    /* Title Styling */
-    .stTitle {
-        font-size: large;
-        font-weight: 600;
-        color: #2c3e50;
-        text-align: center;
-        margin-bottom: 1rem;
-        padding: 10px 0;
-        border-bottom: 2px solid #bdc3c7;
-    }
-
     .custom-heading {
-        font-family: 'Roboto', sans-serif; /* Use Roboto font */
-        font-size: 50px; /* Adjust size */
-        color: #2ecc71; /* Green color */
-        text-align: left; /* Left align the text */
+        font-family: 'Roboto', sans-serif;
+        font-size: 50px;
+        color: #2ecc71;
+        text-align: left;
     }
-
-    /* Subtle Text Area Design */
     .stTextArea textarea {
         border: 1px solid #bdc3c7;
         border-radius: 10px;
@@ -106,8 +87,6 @@ st.markdown("""
         outline: none;
         box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
     }
-
-    /* Button Styling */
     .stButton>button {
         background-color: #fff;
         color: #fc8bcf;
@@ -125,25 +104,6 @@ st.markdown("""
         transform: translateY(-3px);
         box-shadow: 0 8px 15px rgba(41, 128, 185, 0.3);
     }
-
-    .stButton>button:active {
-        background-color: #fff; /* Even Darker Blue on Click */
-        color: #2980b9;
-        transform: translateY(2px); /* Push Down on Click */
-        box-shadow: 0px 3px 6px rgba(31, 99, 145, 0.2); /* Lighter Shadow */
-    }
-
-    /* Success Message Styling */
-    .stAlert {
-        
-        color: #27ae60;
-        border-left: 4px solid #2ecc71;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-weight: bold;
-    }
-
-    /* Footer Styling */
     .footer {
         margin-top: 50px;
         padding: 20px;
@@ -155,31 +115,43 @@ st.markdown("""
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
         font-weight: 500;
     }
-
     </style>
 """, unsafe_allow_html=True)
 
-# The rest of your Streamlit app code
+# Main heading
 st.markdown('<h1 class="custom-heading">Sentiment Analysis Model</h1>', unsafe_allow_html=True)
-st.markdown('<h2 class="custom-text">Enter text for sentiment analysis</h2>',unsafe_allow_html=True)
+st.markdown('<h2>Enter text for sentiment analysis</h2>', unsafe_allow_html=True)
 
-user_input = st.text_area("Your Text", "")
+# Initialize session state for the text input
+if "user_input" not in st.session_state:
+    st.session_state.user_input = ""
 
-if st.button("Predict Sentiment"):
-    if user_input.strip() == "":
-        st.error("Please enter some text to analyze.")
-    else:
-        sentiment = predict_sentiment_ensemble(user_input)
+# Text area for user input
+user_input = st.text_area("Your Text", st.session_state.user_input, key="user_input")
 
-        if sentiment >= 0.772:
-            st.success(f"Sentiment Score: {sentiment:.2f}")
-            st.write("**Prediction:** Positive Sentiment")
-        elif sentiment < 0.772 and sentiment > 0.5:
-            st.success(f"Sentiment Score: {sentiment:.2f}")
-            st.write("**Prediction:** Neutral Sentiment")
+# Buttons for prediction and reset
+col1, col2 = st.columns(2)
+with col1:
+    if st.button("Predict Sentiment"):
+        if user_input.strip() == "":
+            st.error("Please enter some text to analyze.")
         else:
-            st.success(f"Sentiment Score: {sentiment:.2f}")
-            st.write("**Prediction:** Negative Sentiment")
+            sentiment = predict_sentiment_ensemble(user_input)
+
+            if sentiment >= 0.772:
+                st.success(f"Sentiment Score: {sentiment:.2f}")
+                st.write("**Prediction:** Positive Sentiment")
+            elif sentiment < 0.772 and sentiment > 0.5:
+                st.success(f"Sentiment Score: {sentiment:.2f}")
+                st.write("**Prediction:** Neutral Sentiment")
+            else:
+                st.success(f"Sentiment Score: {sentiment:.2f}")
+                st.write("**Prediction:** Negative Sentiment")
+
+with col2:
+    if st.button("Reset"):
+        st.session_state.user_input = ""  # Reset the input text
+        st.experimental_rerun()  # Rerun the app to reflect the change
 
 st.markdown("""
     <div class="footer">
