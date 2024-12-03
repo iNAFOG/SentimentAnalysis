@@ -186,4 +186,4 @@ st.markdown("""
         This application uses <strong>LSTM RNNs models with ensembling</strong> for sentiment analysis.<br>
         Developed by <strong>Prasoon</strong>, <strong>Abhinav</strong>, <strong>Rayan</strong>, and <strong>Shivam</strong>.
     </div>
-""", unsafe_allow_html=True)   can you make a reset button for reseting the input
+""", unsafe_allow_html=True)  
