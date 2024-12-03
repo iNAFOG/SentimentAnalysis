@@ -59,7 +59,7 @@ def predict_sentiment_ensemble(text):
 
     return ensemble_prediction
 
-# Custom CSS for top-notch styling
+# Custom CSS for styling
 st.markdown("""
     <style>
     body {
@@ -150,8 +150,8 @@ with col1:
 
 with col2:
     if st.button("Reset"):
-        st.session_state.user_input = ""  # Reset the input text
-        st.experimental_rerun()  # Rerun the app to reflect the change
+        # Reset the session state variable
+        st.session_state["user_input"] = ""
 
 st.markdown("""
     <div class="footer">
