@@ -5,7 +5,6 @@ import tensorflow as tf
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
-from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import pickle
 import nltk
@@ -59,103 +58,38 @@ def predict_sentiment_ensemble(text):
 
     return ensemble_prediction
 
-# Custom CSS for styling
-st.markdown("""
-    <style>
-    body {
-        background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
-        font-family: Consolas,monaco,monospace;
-        color: #2c3e50;
-    }
-    .custom-heading {
-        font-family: 'Roboto', sans-serif;
-        font-size: 50px;
-        color: #2ecc71;
-        text-align: left;
-    }
-    .stTextArea textarea {
-        border: 1px solid #bdc3c7;
-        border-radius: 10px;
-        padding: 15px;
-        font-family: Consolas,monaco,monospace;
-        font-size: 1rem;
-        color: #34495e;
-        background: #ecf0f1;
-    }
-    .stTextArea textarea:focus {
-        border-color: #3498db;
-        outline: none;
-        box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
-    }
-    .stButton>button {
-        background-color: #fff;
-        color: #fc8bcf;
-        border: none;
-        border-radius: 8px;
-        padding: 12px 24px;
-        font-size: 1.1rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .stButton>button:hover {
-        background-color: #FF13F0;
-        color: #fff;
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(41, 128, 185, 0.3);
-    }
-    .footer {
-        margin-top: 50px;
-        padding: 20px;
-        background: linear-gradient(90deg, #74b9ff, #81ecec);
-        color: #2d3436;
-        text-align: center;
-        border-radius: 10px;
-        font-size: 14px;
-        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        font-weight: 500;
-    }
-    </style>
-""", unsafe_allow_html=True)
+# Streamlit app
+st.title("Sentiment Analysis App")
 
-# Main heading
-st.markdown('<h1 class="custom-heading">Sentiment Analysis Model</h1>', unsafe_allow_html=True)
-st.markdown('<h2>Enter text for sentiment analysis</h2>', unsafe_allow_html=True)
-
-# Initialize session state for the text input
+# Initialize session state
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
 # Text area for user input
-user_input = st.text_area("Your Text", st.session_state.user_input, key="user_input")
+st.text_area("Your Text", value=st.session_state.user_input, key="user_input")
 
 # Buttons for prediction and reset
 col1, col2 = st.columns(2)
+
+# Predict Button
 with col1:
     if st.button("Predict Sentiment"):
+        user_input = st.session_state.user_input
         if user_input.strip() == "":
             st.error("Please enter some text to analyze.")
         else:
             sentiment = predict_sentiment_ensemble(user_input)
-
             if sentiment >= 0.772:
                 st.success(f"Sentiment Score: {sentiment:.2f}")
-                st.write("**Prediction:** Positive Sentiment")
-            elif sentiment < 0.772 and sentiment > 0.5:
+                st.write("Prediction: Positive Sentiment")
+            elif 0.5 < sentiment < 0.772:
                 st.success(f"Sentiment Score: {sentiment:.2f}")
-                st.write("**Prediction:** Neutral Sentiment")
+                st.write("Prediction: Neutral Sentiment")
             else:
                 st.success(f"Sentiment Score: {sentiment:.2f}")
-                st.write("**Prediction:** Negative Sentiment")
+                st.write("Prediction: Negative Sentiment")
 
+# Reset Button
 with col2:
     if st.button("Reset"):
-        # Reset the session state variable
-        st.session_state["user_input"] = ""
-
-st.markdown("""
-    <div class="footer">
-        This application uses <strong>LSTM RNNs models with ensembling</strong> for sentiment analysis.<br>
-        Developed by <strong>Prasoon</strong>, <strong>Abhinav</strong>, <strong>Rayan</strong>, and <strong>Shivam</strong>.
-    </div>
-""", unsafe_allow_html=True)
+        st.session_state.user_input = ""  # Safely clear the session state input
